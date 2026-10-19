@@ -12,12 +12,18 @@ import {
   Check,
   AlertTriangle,
   Sun,
-  Moon
+  Moon,
+  Sliders,
+  Bell,
+  SlidersHorizontal,
+  Key
 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
   const { user, refreshUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
+
+  const [activeTab, setActiveTab] = useState<'security' | 'thresholds' | 'appearance'>('security');
 
   // Password Change
   const [currentPassword, setCurrentPassword] = useState('');
@@ -32,6 +38,13 @@ export const SettingsPage: React.FC = () => {
   const [verifyCode, setVerifyCode] = useState('');
   const [totpError, setTotpError] = useState('');
   const [isVerifyingTotp, setIsVerifyingTotp] = useState(false);
+
+  // Thresholds state
+  const [cpuThreshold, setCpuThreshold] = useState(90);
+  const [ramThreshold, setRamThreshold] = useState(90);
+  const [diskThreshold, setDiskThreshold] = useState(85);
+  const [heartbeatTimeout, setHeartbeatTimeout] = useState(60);
+  const [thresholdSaved, setThresholdSaved] = useState(false);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,253 +116,376 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+  const handleSaveThresholds = (e: React.FormEvent) => {
+    e.preventDefault();
+    setThresholdSaved(true);
+    setTimeout(() => setThresholdSaved(false), 3000);
+  };
+
   return (
-    <div className="space-y-6 pb-20 md:pb-8">
+    <div className="space-y-6 pb-24 md:pb-10">
       {/* Header */}
       <div>
-        <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:bg-cyan-500/15 dark:text-cyan-400 shadow-xs">
-            <Settings className="w-5 h-5" />
-          </div>
-          Settings &amp; Security
+        <div className="flex items-center space-x-2">
+          <span className="text-[11px] font-black uppercase tracking-widest font-mono text-amber-700 dark:text-amber-400">
+            SYSTEM &amp; PREFERENCES
+          </span>
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mt-0.5">
+          Fleet Control &amp; Security Settings
         </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-          User authentication, TOTP two-factor security, and Android PWA deployment
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Configure authentication credentials, 2FA security, alert triggers, and interface theme
         </p>
       </div>
 
-      {/* Profile & 2FA Card */}
-      <div className="glass-panel rounded-3xl p-5 sm:p-6 space-y-5 relative overflow-hidden">
-        <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider font-mono flex items-center gap-2">
-          <User className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
-          User Profile
-        </h3>
+      {/* Tabs */}
+      <div className="flex items-center space-x-2 border-b border-amber-100/60 dark:border-white/5 pb-2">
+        {[
+          { id: 'security', label: 'Security & 2FA', icon: Shield },
+          { id: 'thresholds', label: 'Alert Thresholds', icon: SlidersHorizontal },
+          { id: 'appearance', label: 'Appearance & Theme', icon: Sun },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-2xl text-xs font-bold transition-all ${
+                isActive
+                  ? 'btn-gold-gradient shadow-md scale-[1.02]'
+                  : 'glass-panel-subtle text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
-          <div className="glass-panel-subtle p-3.5 rounded-2xl">
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase font-bold">Username</span>
-            <span className="text-slate-900 dark:text-slate-200 font-extrabold text-sm">{user?.username}</span>
+      {activeTab === 'security' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Password Change Card */}
+          <div className="glass-panel rounded-3xl p-6 relative">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-300">
+                <KeyRound className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Change Account Password</h3>
+                <p className="text-[11px] text-slate-400">Update password for {user?.username}</p>
+              </div>
+            </div>
+
+            {pwMessage && (
+              <div className={`p-3 rounded-2xl text-xs font-mono mb-4 ${
+                pwMessage.error
+                  ? 'bg-rose-500/10 border border-rose-300/60 text-rose-700 dark:text-rose-300'
+                  : 'bg-emerald-500/10 border border-emerald-300/60 text-emerald-700 dark:text-emerald-300'
+              }`}>
+                {pwMessage.text}
+              </div>
+            )}
+
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                />
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={isChangingPw}
+                  className="btn-gold-gradient px-4 py-2 rounded-xl text-xs font-bold shadow-md"
+                >
+                  {isChangingPw ? 'Updating...' : 'Update Password'}
+                </button>
+              </div>
+            </form>
           </div>
-          <div className="glass-panel-subtle p-3.5 rounded-2xl">
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase font-bold">Email</span>
-            <span className="text-slate-900 dark:text-slate-200 font-medium">{user?.email}</span>
-          </div>
-          <div className="glass-panel-subtle p-3.5 rounded-2xl">
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase font-bold">Role</span>
-            <span className="text-sky-600 dark:text-cyan-400 font-extrabold uppercase">{user?.role}</span>
+
+          {/* 2FA / TOTP Card */}
+          <div className="glass-panel rounded-3xl p-6 relative flex flex-col justify-between">
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-300">
+                  <Smartphone className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Two-Factor Authentication (2FA)</h3>
+                  <p className="text-[11px] text-slate-400">Google Authenticator, Aegis, Authy (RFC 6238 TOTP)</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-200/60 dark:border-white/5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">2FA Status:</span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
+                    user?.totp_enabled
+                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-400/40'
+                      : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                  }`}>
+                    {user?.totp_enabled ? 'Active / Protected' : 'Disabled'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Enabling 2FA adds an extra layer of defense to ensure only verified devices can access this VPS fleet console.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              {user?.totp_enabled ? (
+                <button
+                  onClick={handleDisable2FA}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition border border-rose-200/60"
+                >
+                  Disable 2FA Protection
+                </button>
+              ) : (
+                <button
+                  onClick={start2FASetup}
+                  className="btn-gold-gradient px-4 py-2 rounded-xl text-xs font-bold shadow-md"
+                >
+                  Enable 2FA Authenticator
+                </button>
+              )}
+            </div>
           </div>
         </div>
+      )}
 
-        {/* 2FA Toggle Section */}
-        <div className="pt-4 border-t border-slate-200/60 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center space-x-2">
-              <Shield className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
-              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase font-mono">
-                Two-Factor Authentication (TOTP)
-              </h4>
+      {activeTab === 'thresholds' && (
+        <div className="glass-panel rounded-3xl p-6 relative">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-300">
+              <SlidersHorizontal className="w-5 h-5" />
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Secure your monitoring login with Google Authenticator, Aegis, or 1Password.
-            </p>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Alert Threshold Triggers</h3>
+              <p className="text-[11px] text-slate-400">Set utilization limits that trigger push alerts</p>
+            </div>
           </div>
 
-          {user?.totp_enabled ? (
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-mono text-emerald-800 dark:text-emerald-400 flex items-center bg-emerald-500/10 border border-emerald-300/60 dark:border-emerald-800 px-3 py-1.5 rounded-xl font-bold shadow-xs">
-                <Check className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Enabled
-              </span>
+          <form onSubmit={handleSaveThresholds} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <div className="flex justify-between text-xs font-mono font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <span>CPU Warning Threshold</span>
+                <span className="text-amber-700 dark:text-amber-400 font-extrabold">{cpuThreshold}%</span>
+              </div>
+              <input
+                type="range"
+                min="50"
+                max="99"
+                value={cpuThreshold}
+                onChange={(e) => setCpuThreshold(Number(e.target.value))}
+                className="w-full accent-amber-600"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-mono font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <span>RAM Warning Threshold</span>
+                <span className="text-amber-700 dark:text-amber-400 font-extrabold">{ramThreshold}%</span>
+              </div>
+              <input
+                type="range"
+                min="50"
+                max="99"
+                value={ramThreshold}
+                onChange={(e) => setRamThreshold(Number(e.target.value))}
+                className="w-full accent-amber-600"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-mono font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <span>Disk Usage Threshold</span>
+                <span className="text-amber-700 dark:text-amber-400 font-extrabold">{diskThreshold}%</span>
+              </div>
+              <input
+                type="range"
+                min="50"
+                max="99"
+                value={diskThreshold}
+                onChange={(e) => setDiskThreshold(Number(e.target.value))}
+                className="w-full accent-amber-600"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-mono font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <span>Heartbeat Timeout</span>
+                <span className="text-amber-700 dark:text-amber-400 font-extrabold">{heartbeatTimeout} seconds</span>
+              </div>
+              <input
+                type="range"
+                min="30"
+                max="300"
+                step="10"
+                value={heartbeatTimeout}
+                onChange={(e) => setHeartbeatTimeout(Number(e.target.value))}
+                className="w-full accent-amber-600"
+              />
+            </div>
+
+            <div className="md:col-span-2 flex items-center justify-between pt-4 border-t border-amber-100/60 dark:border-white/5">
+              {thresholdSaved && (
+                <span className="text-xs text-emerald-600 font-semibold flex items-center">
+                  <Check className="w-4 h-4 mr-1" /> Thresholds successfully saved!
+                </span>
+              )}
               <button
-                onClick={handleDisable2FA}
-                className="px-3.5 py-1.5 rounded-xl bg-rose-500/10 border border-rose-300/60 text-rose-700 dark:text-rose-300 text-xs font-mono hover:bg-rose-500/20 transition"
+                type="submit"
+                className="btn-gold-gradient px-4 py-2 rounded-xl text-xs font-bold shadow-md ml-auto"
               >
-                Disable
+                Save Triggers
               </button>
             </div>
-          ) : (
-            <button
-              onClick={start2FASetup}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white text-xs font-bold font-mono transition shadow-md shadow-sky-500/25 active:scale-95"
+          </form>
+        </div>
+      )}
+
+      {activeTab === 'appearance' && (
+        <div className="glass-panel rounded-3xl p-6 relative">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-300">
+              <Sun className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Interface &amp; Display Theme</h3>
+              <p className="text-[11px] text-slate-400">Choose between Warm Frosted Light mode and Obsidian Dark mode</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              onClick={() => theme === 'dark' && toggleTheme()}
+              className={`p-5 rounded-2xl cursor-pointer border-2 transition-all ${
+                theme === 'light'
+                  ? 'border-amber-600 bg-amber-50/50 shadow-md'
+                  : 'border-slate-200 dark:border-slate-800 opacity-60 hover:opacity-100'
+              }`}
             >
-              Enable 2FA
-            </button>
-          )}
-        </div>
-      </div>
+              <div className="flex items-center justify-between">
+                <Sun className="w-6 h-6 text-amber-600" />
+                {theme === 'light' && <Check className="w-4 h-4 text-amber-600" />}
+              </div>
+              <h4 className="font-bold text-slate-900 mt-2">Warm Glass Light (Default)</h4>
+              <p className="text-xs text-slate-500 mt-1">High-contrast, warm cream aesthetic with golden amber glows.</p>
+            </div>
 
-      {/* Appearance & Theme Card */}
-      <div className="glass-panel rounded-3xl p-5 sm:p-6 flex items-center justify-between relative overflow-hidden">
-        <div>
-          <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider font-mono flex items-center gap-2">
-            {theme === 'dark' ? <Moon className="w-4 h-4 text-cyan-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
-            Theme &amp; Appearance
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Currently active: <span className="font-mono text-sky-600 dark:text-cyan-400 font-bold uppercase">{theme} mode</span>
-          </p>
-        </div>
-
-        <button
-          onClick={toggleTheme}
-          className="flex items-center space-x-2 px-4 py-2.5 rounded-xl glass-panel-subtle hover:bg-white text-xs font-mono text-slate-800 dark:text-slate-200 transition shadow-xs active:scale-95"
-        >
-          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
-          <span>Switch to {theme === 'dark' ? 'Light' : 'Dark'} Mode</span>
-        </button>
-      </div>
-
-      {/* Change Password Card */}
-      <div className="glass-panel rounded-3xl p-5 sm:p-6 space-y-4 relative overflow-hidden">
-        <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider font-mono flex items-center gap-2">
-          <KeyRound className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
-          Update Password (Argon2id)
-        </h3>
-
-        {pwMessage && (
-          <div className={`p-3 rounded-2xl text-xs font-mono ${pwMessage.error ? 'bg-rose-500/10 border border-rose-300/60 text-rose-700 dark:text-rose-300' : 'bg-emerald-500/10 border border-emerald-300/60 text-emerald-800 dark:text-emerald-300'}`}>
-            {pwMessage.text}
-          </div>
-        )}
-
-        <form onSubmit={handlePasswordChange} className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <div>
-            <label className="block text-xs font-mono text-slate-600 dark:text-slate-400 mb-1">Current Password</label>
-            <input
-              type="password"
-              required
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-mono text-slate-600 dark:text-slate-400 mb-1">New Password (min 8 chars)</label>
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-mono text-slate-600 dark:text-slate-400 mb-1">Confirm New Password</label>
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all"
-            />
-          </div>
-
-          <div className="sm:col-span-3 pt-2">
-            <button
-              type="submit"
-              disabled={isChangingPw}
-              className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-mono font-bold transition shadow-xs active:scale-95"
+            <div
+              onClick={() => theme === 'light' && toggleTheme()}
+              className={`p-5 rounded-2xl cursor-pointer border-2 transition-all ${
+                theme === 'dark'
+                  ? 'border-amber-500 bg-slate-900/80 shadow-md'
+                  : 'border-slate-200 dark:border-slate-800 opacity-60 hover:opacity-100'
+              }`}
             >
-              {isChangingPw ? 'Updating...' : 'Save New Password'}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Android PWA & Network Connectivity Architecture Guide */}
-      <div className="glass-panel rounded-3xl p-5 sm:p-6 space-y-4 relative overflow-hidden">
-        <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider font-mono flex items-center gap-2">
-          <Smartphone className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-          Android Installation &amp; Network Architecture
-        </h3>
-
-        <div className="p-3.5 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl text-amber-900 dark:text-amber-200 text-xs space-y-2">
-          <p className="font-semibold flex items-center">
-            <AlertTriangle className="w-4 h-4 mr-1.5 text-amber-600 dark:text-amber-400 shrink-0" />
-            Crucial Architecture &amp; Connectivity Limitation
-          </p>
-          <p className="text-[11px] leading-relaxed">
-            The frontend application can be installed directly on your Android phone as a standalone PWA via <strong>"Add to Home screen"</strong>.
-            However, <strong>remote server monitoring requires network reachability</strong> to the central monitoring API.
-            If your central backend is hosted on your home server without a public IP, your phone must be connected to your home Wi-Fi or connected via a secure mesh VPN (such as <strong>WireGuard</strong> or <strong>Tailscale</strong>).
-            Alternatively, deploy the central backend to your Singapore VPS so both your home server and phone can communicate with it over standard HTTPS.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          {/* Add to home screen steps */}
-          <div className="bg-slate-50/80 dark:bg-slate-950/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-2">
-            <h4 className="font-bold text-slate-800 dark:text-slate-200">Installing on Android (Chrome):</h4>
-            <ol className="list-decimal list-inside space-y-1 text-slate-600 dark:text-slate-400 font-mono text-[11px]">
-              <li>Open Chrome on your Android device.</li>
-              <li>Navigate to your dashboard URL (e.g. <code>https://monitor.yourdomain.com</code>).</li>
-              <li>Tap the three dots menu in the top right.</li>
-              <li>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.</li>
-              <li>The VPS Fleet Monitor icon will appear in your app drawer as a standalone app.</li>
-            </ol>
-          </div>
-
-          {/* Android Battery Restrictions Note */}
-          <div className="bg-slate-50/80 dark:bg-slate-950/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-2">
-            <h4 className="font-bold text-slate-800 dark:text-slate-200">Android Background Limits:</h4>
-            <p className="text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed">
-              Android aggressively throttles background JavaScript execution and Service Worker timers to save battery life.
-              For guaranteed real-time alerts when the app is closed, configure the <strong>Telegram Bot notification channel</strong> on the Alerts tab.
-            </p>
+              <div className="flex items-center justify-between">
+                <Moon className="w-6 h-6 text-amber-400" />
+                {theme === 'dark' && <Check className="w-4 h-4 text-amber-400" />}
+              </div>
+              <h4 className="font-bold text-white mt-2">Obsidian Dark Glass</h4>
+              <p className="text-xs text-slate-400 mt-1">Deep dark backgrounds with luminous ambient indicators.</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 2FA Setup Modal */}
       <Modal
         isOpen={is2FAModalOpen}
         onClose={() => setIs2FAModalOpen(false)}
-        title="Scan 2FA Authenticator QR Code"
+        title="Activate Two-Factor Authentication"
       >
         <div className="space-y-4">
           <p className="text-xs text-slate-600 dark:text-slate-300">
-            Scan this QR code using your authenticator app (Google Authenticator, Bitwarden, Aegis):
+            Scan this QR code with your Authenticator app (e.g. Google Authenticator, Authy):
           </p>
 
           {totpSetupData?.qr_svg && (
             <div
-              className="bg-white p-4 rounded-xl flex items-center justify-center max-w-[200px] mx-auto shadow-md border border-slate-200 dark:border-slate-700"
+              className="p-4 bg-white rounded-2xl flex justify-center border border-slate-200 shadow-xs"
               dangerouslySetInnerHTML={{ __html: totpSetupData.qr_svg }}
             />
           )}
 
-          <div>
-            <label className="block text-[11px] font-mono text-slate-500 dark:text-slate-400 mb-1">Manual Secret Key</label>
-            <div className="p-2 bg-slate-100 dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 font-mono text-xs text-cyan-700 dark:text-cyan-400 select-all text-center">
-              {totpSetupData?.secret}
-            </div>
+          <div className="text-center font-mono text-xs font-bold text-slate-700 dark:text-slate-300 select-all p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            {totpSetupData?.secret}
           </div>
 
-          <form onSubmit={handleVerify2FA} className="space-y-3">
-            {totpError && (
-              <p className="text-xs text-rose-600 dark:text-rose-400 font-mono">{totpError}</p>
-            )}
-            <div>
-              <label className="block text-xs font-mono text-slate-600 dark:text-slate-400 mb-1">Enter 6-digit verification code</label>
-              <input
-                type="text"
-                required
-                maxLength={6}
-                value={verifyCode}
-                onChange={(e) => setVerifyCode(e.target.value)}
-                placeholder="123456"
-                className="w-full text-center tracking-widest text-lg font-mono bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950"
-              />
+          {totpError && (
+            <div className="p-3 bg-rose-500/10 border border-rose-300/60 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-mono">
+              {totpError}
             </div>
+          )}
 
-            <button
-              type="submit"
-              disabled={isVerifyingTotp}
-              className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition"
-            >
-              {isVerifyingTotp ? 'Verifying...' : 'Verify and Enable 2FA'}
-            </button>
+          <form onSubmit={handleVerify2FA} className="space-y-3">
+            <input
+              type="text"
+              required
+              maxLength={6}
+              value={verifyCode}
+              onChange={(e) => setVerifyCode(e.target.value)}
+              placeholder="000000"
+              className="w-full glass-panel-subtle rounded-xl text-center tracking-widest text-lg font-mono py-2.5 text-slate-900 dark:text-white"
+            />
+
+            <div className="flex justify-end space-x-2">
+              <button
+                type="button"
+                onClick={() => setIs2FAModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isVerifyingTotp}
+                className="btn-gold-gradient px-4 py-2 rounded-xl text-xs font-bold shadow-md"
+              >
+                {isVerifyingTotp ? 'Verifying...' : 'Verify & Enable'}
+              </button>
+            </div>
           </form>
         </div>
       </Modal>

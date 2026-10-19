@@ -32,31 +32,31 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-4 relative overflow-hidden transition-colors">
-      {/* Background ambient glowing orbs */}
-      <div className="absolute top-1/4 -left-32 w-[450px] h-[450px] bg-gradient-to-br from-cyan-400/20 to-sky-500/10 dark:from-cyan-600/15 dark:to-transparent rounded-full blur-3xl pointer-events-none animate-float-slow" />
-      <div className="absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-gradient-to-bl from-indigo-400/20 to-purple-500/10 dark:from-indigo-600/15 dark:to-transparent rounded-full blur-3xl pointer-events-none animate-float-slow" />
+    <div className="min-h-screen bg-[#fbf9f5] dark:bg-[#0b0f17] flex flex-col justify-center items-center p-4 relative overflow-hidden transition-colors">
+      {/* Background ambient glowing orbs in warm amber & gold */}
+      <div className="absolute top-1/4 -left-32 w-[450px] h-[450px] bg-gradient-to-br from-amber-400/20 to-orange-500/10 dark:from-amber-600/15 dark:to-transparent rounded-full blur-3xl pointer-events-none animate-float-slow" />
+      <div className="absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-gradient-to-bl from-amber-300/20 to-yellow-500/10 dark:from-amber-700/15 dark:to-transparent rounded-full blur-3xl pointer-events-none animate-float-slow" />
 
       {/* Subtle Dot Grid */}
       <div 
-        className="fixed inset-0 pointer-events-none opacity-[0.4] dark:opacity-[0.15]" 
+        className="fixed inset-0 pointer-events-none opacity-[0.35] dark:opacity-[0.15]" 
         style={{
-          backgroundImage: 'radial-gradient(rgba(100, 116, 139, 0.3) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(rgba(180, 83, 9, 0.25) 1px, transparent 1px)',
           backgroundSize: '24px 24px'
         }}
       />
 
-      <div className="max-w-md w-full glass-panel rounded-3xl p-6 sm:p-9 shadow-2xl relative z-10">
+      <div className="max-w-md w-full glass-panel rounded-3xl p-6 sm:p-9 shadow-2xl relative z-10 border border-amber-100/80 dark:border-white/10">
         {/* Brand Header */}
         <div className="text-center mb-7">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500 via-cyan-500 to-indigo-600 flex items-center justify-center mx-auto mb-3.5 shadow-lg shadow-sky-500/30">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-700 to-amber-800 flex items-center justify-center mx-auto mb-3.5 shadow-lg shadow-amber-600/35">
             <Server className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             VPS Fleet Monitor
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Mobile-First Multi-Server Infrastructure Dashboard
+            Home &amp; Edge Multi-Server Infrastructure Console
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export const LoginPage: React.FC = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="admin"
-                className="w-full glass-panel-subtle rounded-2xl pl-11 pr-4 py-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all shadow-xs"
+                className="w-full glass-panel-subtle rounded-2xl pl-11 pr-4 py-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 font-sans transition-all shadow-xs"
               />
             </div>
           </div>
@@ -92,12 +92,12 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full glass-panel-subtle rounded-2xl pl-11 pr-11 py-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all shadow-xs"
+                className="w-full glass-panel-subtle rounded-2xl pl-11 pr-11 py-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 font-sans transition-all shadow-xs"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -106,19 +106,19 @@ export const LoginPage: React.FC = () => {
 
           {requires2FA && (
             <div className="animate-fade-in">
-              <label className="block text-xs font-mono text-sky-600 dark:text-cyan-400 mb-1.5 flex items-center font-bold">
-                <ShieldCheck className="w-4 h-4 mr-1.5" />
-                TOTP 2FA Verification Code
+              <label className="block text-xs font-mono text-amber-700 dark:text-amber-400 mb-1.5 font-bold">
+                Two-Factor Code (TOTP)
               </label>
               <div className="relative">
-                <Key className="w-4 h-4 text-sky-600 dark:text-cyan-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <Key className="w-4 h-4 text-amber-500 absolute left-4 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
+                  required
                   maxLength={6}
                   value={totpCode}
                   onChange={(e) => setTotpCode(e.target.value)}
                   placeholder="123456"
-                  className="w-full glass-panel-subtle rounded-2xl pl-11 pr-4 py-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400"
+                  className="w-full glass-panel-subtle rounded-2xl pl-11 pr-4 py-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 font-mono text-center tracking-widest transition-all"
                 />
               </div>
             </div>
@@ -127,17 +127,16 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full mt-3 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 via-cyan-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 disabled:opacity-50 active:scale-[0.98]"
+            className="w-full btn-gold-gradient py-3.5 px-4 rounded-2xl text-xs font-bold uppercase tracking-wider font-mono shadow-md mt-2 flex items-center justify-center space-x-2 transition-all cursor-pointer"
           >
-            {isLoading ? 'Authenticating...' : 'Sign In to Fleet'}
+            {isLoading ? (
+              <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+            ) : (
+              <ShieldCheck className="w-4 h-4 mr-1.5" />
+            )}
+            <span>{isLoading ? 'Verifying...' : 'Sign In to Console'}</span>
           </button>
         </form>
-
-        <div className="mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-800/80 text-center">
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
-            Protected by Argon2id &amp; Short-Lived JWT Tokens
-          </p>
-        </div>
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onNavigate }) =
               onClick={() => onNavigate(item.id)}
               className={`relative flex items-center justify-center transition-all duration-300 active:scale-90 ${
                 isActive
-                  ? 'bg-gradient-to-r from-sky-500 via-cyan-500 to-indigo-600 text-white font-extrabold shadow-md shadow-sky-500/35 px-4 py-2.5 rounded-2xl space-x-2 scale-[1.02]'
+                  ? 'btn-gold-gradient text-white font-extrabold shadow-md shadow-amber-600/35 px-4 py-2.5 rounded-2xl space-x-2 scale-[1.02]'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white px-3 py-2.5 rounded-2xl hover:bg-white/60 dark:hover:bg-slate-800/60'
               }`}
             >

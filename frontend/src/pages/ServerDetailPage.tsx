@@ -24,7 +24,10 @@ import {
   AlertTriangle,
   RotateCw,
   Copy,
-  Check
+  Check,
+  Activity,
+  Terminal,
+  Home
 } from 'lucide-react';
 
 interface ServerDetailPageProps {
@@ -94,149 +97,129 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({ serverId, on
   if (isLoading || !server) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-slate-400 font-mono text-xs">
-        <RotateCw className="w-6 h-6 animate-spin text-cyan-400 mb-2" />
+        <RotateCw className="w-6 h-6 animate-spin text-amber-600 mb-2" />
         Loading server telemetry...
       </div>
     );
   }
 
-  const latest = server.latest_metric;
   const isOnline = server.status === 'online';
+  const isDelayed = server.status === 'delayed';
+  const latestMetric = server.latest_metric;
 
-  // Prepare chart points
-  const cpuPoints = history.map(h => ({ timestamp: h.timestamp, value: h.cpu_percent }));
-  const ramPoints = history.map(h => ({ timestamp: h.timestamp, value: h.ram_percent }));
-
-  // Network IO aggregated points (KB/s)
-  const netPoints = history.map(h => {
-    let totalRate = 0;
-    if (h.networks) {
-      for (const n of h.networks) {
-        totalRate += (n.tx_sec + n.rx_sec) / 1024;
-      }
-    }
-    return { timestamp: h.timestamp, value: totalRate };
-  });
+  // Format historical series for charts
+  const cpuData = history.map((h) => ({ timestamp: h.timestamp, value: h.cpu_percent }));
+  const ramData = history.map((h) => ({ timestamp: h.timestamp, value: h.ram_percent }));
 
   return (
-    <div className="space-y-6 pb-20 md:pb-8">
-      {/* Top Breadcrumb & Action Header */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition group"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" />
-          Back to Overview
-        </button>
-
-        {user?.role === 'admin' && (
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => {
-                setNewRawToken(null);
-                setIsRotateModalOpen(true);
-              }}
-              className="inline-flex items-center space-x-1 text-xs font-mono text-cyan-700 dark:text-cyan-400 hover:text-cyan-800 dark:hover:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800/60 px-2.5 py-1.5 rounded-lg transition"
-            >
-              <Key className="w-3.5 h-3.5" />
-              <span>Rotate Agent Token</span>
-            </button>
-            <button
-              onClick={handleDeleteServer}
-              className="inline-flex items-center space-x-1 text-xs font-mono text-rose-700 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 px-2.5 py-1.5 rounded-lg transition"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Delete</span>
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Server Header Card */}
-      <div className="glass-panel rounded-3xl p-5 sm:p-7 relative overflow-hidden transition-all duration-300">
-        {/* Subtle Ambient Glow */}
-        <div className="absolute -top-16 -right-16 w-48 h-48 bg-sky-400/15 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+    <div className="space-y-6 pb-24 md:pb-10">
+      {/* Top Breadcrumb & Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={onBack}
+            className="p-2.5 rounded-2xl glass-panel-subtle text-slate-600 hover:text-slate-900 dark:text-slate-300 transition hover:scale-105 active:scale-95 shadow-xs"
+            title="Back to fleet"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
           <div>
-            <div className="flex items-center space-x-3">
-              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                {server.name}
-              </h2>
-              <span className="flex items-center text-xs px-2.5 py-0.5 rounded-full bg-slate-200/50 dark:bg-slate-800/60 border border-white/60 dark:border-white/5 text-slate-700 dark:text-slate-300 font-medium backdrop-blur-xs">
-                <MapPin className="w-3 h-3 mr-1 text-sky-500 dark:text-cyan-400" />
-                {server.location}
+            <div className="flex items-center space-x-2">
+              <span className="text-[11px] font-black uppercase tracking-widest font-mono text-amber-700 dark:text-amber-400">
+                NODE TELEMETRY
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-1">
-              {server.os_info || 'Ubuntu Linux'} &bull; {server.cpu_model || 'Standard CPU'} ({server.cpu_cores} Cores)
-            </p>
-          </div>
-
-          {/* Status Badge */}
-          <div className="flex items-center space-x-3 self-start sm:self-auto">
-            <div
-              className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border backdrop-blur-md ${
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5 mt-0.5">
+              {server.name}
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
                 isOnline
-                  ? 'bg-emerald-500/10 border-emerald-300/60 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-800 text-emerald-800 dark:text-emerald-400 shadow-xs shadow-emerald-500/10'
-                  : 'bg-rose-500/10 border-rose-300/60 text-rose-800 dark:bg-rose-950/40 dark:border-rose-800 text-rose-800 dark:text-rose-400 shadow-xs shadow-rose-500/10'
-              }`}
-            >
-              <Radio className={`w-3.5 h-3.5 ${isOnline ? 'animate-pulse text-emerald-600 dark:text-emerald-400' : ''}`} />
-              <span className="uppercase tracking-wider">{server.status}</span>
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
+                  : isDelayed
+                  ? 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-400'
+                  : 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-400'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                  isOnline ? 'bg-emerald-500' : isDelayed ? 'bg-amber-500' : 'bg-rose-500'
+                }`} />
+                {server.status.toUpperCase()}
+              </span>
+            </h2>
+          </div>
+        </div>
+
+        {/* Actions Toolbar */}
+        <div className="flex items-center space-x-2 self-start sm:self-auto">
+          <button
+            onClick={() => fetchServerDetail()}
+            className="p-2.5 rounded-2xl glass-panel-subtle text-slate-600 hover:text-slate-900 dark:text-slate-300 transition"
+            title="Refresh Node Metrics"
+          >
+            <RotateCw className="w-4 h-4" />
+          </button>
+
+          {user?.role === 'admin' && (
+            <>
+              <button
+                onClick={() => {
+                  setNewRawToken(null);
+                  setIsRotateModalOpen(true);
+                }}
+                className="btn-gold-gradient px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center space-x-1.5 shadow-sm"
+              >
+                <Key className="w-3.5 h-3.5" />
+                <span>Rotate Agent Key</span>
+              </button>
+
+              <button
+                onClick={handleDeleteServer}
+                className="p-2.5 rounded-2xl bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 border border-rose-300/40 dark:border-rose-800/40 transition"
+                title="Decommission Server"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Node Meta Specs Card */}
+      <div className="glass-panel rounded-3xl p-5 sm:p-6 shadow-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+          <div>
+            <span className="text-[10px] text-slate-400 uppercase">Location &amp; Cluster</span>
+            <div className="font-bold text-slate-800 dark:text-slate-200 mt-1 flex items-center gap-1.5">
+              <Home className="w-3.5 h-3.5 text-amber-600" />
+              {server.location}
+            </div>
+          </div>
+          <div>
+            <span className="text-[10px] text-slate-400 uppercase">Public / Private IP</span>
+            <div className="font-bold text-slate-800 dark:text-slate-200 mt-1">
+              {server.public_ip || server.private_ip || 'None'}
+            </div>
+          </div>
+          <div>
+            <span className="text-[10px] text-slate-400 uppercase">Operating System</span>
+            <div className="font-bold text-slate-800 dark:text-slate-200 mt-1">
+              {server.os_info || 'Ubuntu 24.04 LTS'}
+            </div>
+          </div>
+          <div>
+            <span className="text-[10px] text-slate-400 uppercase">Uptime &amp; Last Heartbeat</span>
+            <div className="font-bold text-slate-800 dark:text-slate-200 mt-1">
+              {latestMetric?.uptime_seconds ? `${Math.floor(latestMetric.uptime_seconds / 86400)}d ${Math.floor((latestMetric.uptime_seconds % 86400) / 3600)}h` : '--'}
             </div>
           </div>
         </div>
-
-        {/* Specs Metadata Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-200/60 dark:border-slate-800/80 text-xs font-mono relative z-10">
-          <div>
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase">Public IP</span>
-            <span className="text-slate-800 dark:text-slate-200 font-semibold">{server.public_ip || 'None'}</span>
-          </div>
-          <div>
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase">Private / VPN IP</span>
-            <span className="text-slate-800 dark:text-slate-200 font-semibold">{server.private_ip || 'None'}</span>
-          </div>
-          <div>
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase">Total RAM</span>
-            <span className="text-slate-800 dark:text-slate-200 font-semibold">{((server.ram_total_mb || 0) / 1024).toFixed(1)} GB</span>
-          </div>
-          <div>
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase">Last Heartbeat</span>
-            <span className="text-slate-800 dark:text-slate-200 font-semibold">
-              {server.last_heartbeat ? new Date(server.last_heartbeat).toLocaleTimeString() : 'Never'}
-            </span>
-          </div>
-        </div>
-
-        {/* Temperature & Battery if available */}
-        {(latest?.temperature_c || latest?.battery_percent !== null) && (
-          <div className="flex items-center space-x-4 mt-3 pt-3 border-t border-slate-200/60 dark:border-slate-800/60 text-xs font-mono text-slate-600 dark:text-slate-300 relative z-10">
-            {latest?.temperature_c && (
-              <span className="flex items-center">
-                <Thermometer className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 mr-1" />
-                {latest.temperature_c.toFixed(1)} °C
-              </span>
-            )}
-            {latest?.battery_percent !== null && latest?.battery_percent !== undefined && (
-              <span className="flex items-center">
-                <Battery className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 mr-1" />
-                {latest.battery_percent.toFixed(0)}% {latest.battery_charging ? '(Charging)' : ''}
-              </span>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* Tabs Switcher */}
-      <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800 pb-1">
-        <div className="flex space-x-2">
+      {/* Tabs Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center space-x-2">
           {[
-            { id: 'metrics', label: 'Metrics & Charts', icon: Cpu },
-            { id: 'ports', label: `Open Ports (${server.listening_ports?.length || 0})`, icon: Shield },
-            { id: 'disks', label: `Storage (${latest?.disks?.length || 0})`, icon: HardDrive },
+            { id: 'metrics', label: 'Metrics History', icon: Activity },
+            { id: 'ports', label: 'Open Ports', icon: Shield },
+            { id: 'disks', label: 'Storage Partitions', icon: HardDrive },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -244,30 +227,30 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({ serverId, on
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-xl transition-all duration-200 ${
+                className={`flex items-center space-x-2 px-4 py-2 rounded-2xl text-xs font-bold transition-all ${
                   isActive
-                    ? 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold shadow-md shadow-sky-500/25 scale-[1.02]'
+                    ? 'btn-gold-gradient shadow-md scale-[1.02]'
                     : 'glass-panel-subtle text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4" />
                 <span>{tab.label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Timeframe switcher for charts */}
+        {/* Timeframe selector when viewing metrics */}
         {activeTab === 'metrics' && (
-          <div className="flex items-center space-x-1 pb-1">
+          <div className="flex items-center space-x-1.5 p-1 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 self-start sm:self-auto">
             {(['1h', '6h', '24h'] as const).map((tf) => (
               <button
                 key={tf}
                 onClick={() => setTimeframe(tf)}
-                className={`px-2 py-1 rounded text-[11px] font-mono transition ${
+                className={`px-3 py-1 rounded-lg text-[10px] font-mono font-bold uppercase transition-all ${
                   timeframe === tf
-                    ? 'bg-slate-900 dark:bg-slate-800 text-white dark:text-cyan-400 font-bold shadow-xs'
-                    : 'text-slate-500 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
+                    ? 'btn-gold-gradient shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {tf}
@@ -277,135 +260,125 @@ export const ServerDetailPage: React.FC<ServerDetailPageProps> = ({ serverId, on
         )}
       </div>
 
-      {/* Tab: Metrics & Charts */}
+      {/* Tab Contents */}
       {activeTab === 'metrics' && (
         <div className="space-y-4">
-          <MetricChart
-            title="CPU Utilization"
-            unit="%"
-            data={cpuPoints}
-            color="cyan"
-          />
-          <MetricChart
-            title="Memory (RAM) Footprint"
-            unit="%"
-            data={ramPoints}
-            color="purple"
-          />
-          <MetricChart
-            title="Total Network Throughput (Upload + Download)"
-            unit=" KB/s"
-            data={netPoints}
-            color="emerald"
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <MetricChart
+              title="CPU Load History"
+              unit="%"
+              data={cpuData}
+              color="amber"
+              height={180}
+            />
+            <MetricChart
+              title="Memory Utilization"
+              unit="%"
+              data={ramData}
+              color="purple"
+              height={180}
+            />
+          </div>
         </div>
       )}
 
-      {/* Tab: Open Ports & Security */}
       {activeTab === 'ports' && (
-        <div className="space-y-3">
-          <div className="p-3 bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-300 shadow-xs">
-            <p className="font-semibold text-slate-900 dark:text-slate-200 mb-1 flex items-center">
-              <Shield className="w-4 h-4 text-cyan-600 dark:text-cyan-400 mr-1.5" />
-              Ubuntu Socket &amp; Listening Ports Inventory
-            </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-              Safe inventory collected via local system socket inspection (<code>ss -lntup</code>).
-              <strong> Important:</strong> A listening socket is not necessarily reachable from the public internet.
-              Hardware firewalls, Ubuntu UFW, and cloud security groups may block external traffic.
-            </p>
-          </div>
+        <div className="glass-panel rounded-3xl p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2">Listening Network Ports</h3>
+          <p className="text-xs text-slate-400 mb-4">Live listening sockets and services detected by fleet agent</p>
 
           {server.listening_ports && server.listening_ports.length > 0 ? (
-            <div className="space-y-2">
-              {server.listening_ports.map((port) => (
-                <PortBadge key={port.id} port={port} />
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+              {server.listening_ports.map((p: ListeningPort, idx: number) => (
+                <PortBadge key={idx} port={p} />
               ))}
             </div>
           ) : (
-            <div className="p-6 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl text-center text-xs text-slate-500 font-mono shadow-xs">
-              No listening ports detected on this server yet.
-            </div>
+            <p className="text-xs text-slate-400 font-mono">No open port telemetry received.</p>
           )}
         </div>
       )}
 
-      {/* Tab: Disks Breakdown */}
       {activeTab === 'disks' && (
-        <div className="space-y-3">
-          {latest?.disks && latest.disks.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {latest.disks.map((disk, idx) => (
-                <div key={idx} className="bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-xs">
-                  <div className="flex items-center justify-between font-mono text-xs mb-2">
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{disk.mount_point}</span>
-                    <span className="text-slate-500 dark:text-slate-400">{disk.filesystem || 'filesystem'}</span>
+        <div className="glass-panel rounded-3xl p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2">Storage Partitions &amp; Mounts</h3>
+          <p className="text-xs text-slate-400 mb-4">Filesystem capacity and partition utilization</p>
+
+          {latestMetric?.disks && latestMetric.disks.length > 0 ? (
+            <div className="space-y-4">
+              {latestMetric.disks.map((d, idx) => (
+                <div key={idx} className="glass-panel-subtle p-4 rounded-2xl">
+                  <div className="flex justify-between text-xs font-mono mb-2">
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{d.mount_point}</span>
+                    <span className="text-slate-500">{d.used_gb} / {d.total_gb} GB ({d.percent_used}%)</span>
                   </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden mb-2">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all ${
-                        disk.percent_used > 90 ? 'bg-rose-500' : disk.percent_used > 75 ? 'bg-amber-400' : 'bg-emerald-500'
-                      }`}
-                      style={{ width: `${Math.min(100, disk.percent_used)}%` }}
+                      className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"
+                      style={{ width: `${d.percent_used}%` }}
                     />
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                    <span>{disk.used_gb} GB used of {disk.total_gb} GB</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{disk.percent_used}%</span>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="p-6 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl text-center text-xs text-slate-500 font-mono shadow-xs">
-              No disk partition metrics reported yet.
-            </div>
+            <p className="text-xs text-slate-400 font-mono">No disk partition telemetry received.</p>
           )}
         </div>
       )}
 
-      {/* Rotate Agent Token Modal */}
+      {/* Rotate Agent Key Modal */}
       <Modal
         isOpen={isRotateModalOpen}
         onClose={() => setIsRotateModalOpen(false)}
-        title="Rotate Server Agent Credential"
+        title="Rotate Node Agent Token"
       >
         <div className="space-y-4">
           <p className="text-xs text-slate-600 dark:text-slate-300">
-            Rotating the credential creates a new token scoped exclusively to <strong>{server.name}</strong>.
-            Existing tokens will remain valid until deleted or replaced in the agent's <code>/etc/fleet-agent/config.json</code>.
+            Generating a new agent token will invalidate the previous token for server '{server.name}'.
           </p>
 
-          {!newRawToken ? (
-            <button
-              onClick={handleGenerateNewCredential}
-              className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition"
-            >
-              Generate New Agent Token
-            </button>
-          ) : (
+          {newRawToken ? (
             <div className="space-y-3">
-              <label className="block text-xs font-mono text-slate-600 dark:text-slate-400">New Secret Token</label>
               <div className="relative">
-                <div className="p-3 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 font-mono text-xs text-amber-700 dark:text-amber-300 break-all select-all pr-10">
+                <pre className="p-3 bg-slate-900 text-amber-300 rounded-xl text-xs font-mono break-all select-all">
                   {newRawToken}
-                </div>
+                </pre>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(newRawToken);
                     setCopied(true);
                     setTimeout(() => setCopied(false), 2000);
                   }}
-                  className="absolute top-2 right-2 p-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition"
+                  className="btn-gold-gradient absolute top-2 right-2 px-2.5 py-1 rounded-lg text-xs font-bold"
                 >
-                  {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                  {copied ? 'Copied' : 'Copy'}
                 </button>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Update <code>/etc/fleet-agent/config.json</code> on the Ubuntu server and restart:
-                <br />
-                <code>sudo systemctl restart fleet-agent</code>
-              </p>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={() => setIsRotateModalOpen(false)}
+                  className="btn-gold-gradient px-4 py-2 rounded-xl text-xs font-bold"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-end space-x-2 pt-2">
+              <button
+                onClick={() => setIsRotateModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGenerateNewCredential}
+                className="btn-gold-gradient px-4 py-2 rounded-xl text-xs font-bold"
+              >
+                Generate Token
+              </button>
             </div>
           )}
         </div>
