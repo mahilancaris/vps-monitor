@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Server, Bell, Settings } from 'lucide-react';
+import { LayoutDashboard, Server, Bell, Settings, Radio } from 'lucide-react';
 import { useFleet } from '../context/FleetContext';
 
 interface BottomNavProps {
@@ -8,7 +8,7 @@ interface BottomNavProps {
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onNavigate }) => {
-  const { alerts } = useFleet();
+  const { alerts, isPhoneOnline } = useFleet();
   const activeAlertsCount = alerts.filter(a => a.status === 'active').length;
 
   const items = [
@@ -19,37 +19,53 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onNavigate }) =
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/75 dark:bg-slate-950/80 backdrop-blur-2xl backdrop-saturate-180 border-t border-white/80 dark:border-white/10 pb-[env(safe-area-inset-bottom)] transition-colors duration-200 shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.05)]">
-      <div className="flex items-center justify-around h-16 px-2">
+    <div className="md:hidden fixed bottom-3 inset-x-0 mx-auto max-w-[360px] px-3 z-50 pointer-events-none">
+      <nav 
+        className="pointer-events-auto rounded-[28px] p-1.5 glass-panel !border-white/90 dark:!border-white/10 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.12),0_4px_16px_rgba(14,165,233,0.15)] flex items-center justify-between backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300"
+        aria-label="Mobile Navigation Dock"
+      >
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
+
           return (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`flex flex-col items-center justify-center flex-1 py-1 relative transition-all duration-200 ${
+              className={`relative flex items-center justify-center transition-all duration-300 active:scale-90 ${
                 isActive
-                  ? 'text-sky-600 dark:text-cyan-400 font-bold scale-105'
-                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                  ? 'bg-gradient-to-r from-sky-500 via-cyan-500 to-indigo-600 text-white font-extrabold shadow-md shadow-sky-500/35 px-4 py-2.5 rounded-2xl space-x-2 scale-[1.02]'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white px-3 py-2.5 rounded-2xl hover:bg-white/60 dark:hover:bg-slate-800/60'
               }`}
             >
-              <div className="relative">
-                <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-110' : ''}`} />
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full ring-2 ring-white dark:ring-slate-950 shadow-xs shadow-rose-500/50">
+              <div className="relative flex items-center justify-center">
+                <Icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-105' : ''}`} />
+
+                {/* Notification Badge on inactive tabs */}
+                {!isActive && item.badge !== undefined && item.badge > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-gradient-to-tr from-rose-500 to-red-600 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-sm shadow-rose-500/60 animate-pulse">
                     {item.badge}
                   </span>
                 )}
               </div>
-              <span className="text-[11px] mt-1 font-medium">{item.label}</span>
+
+              {/* Expanding Label for Active Item */}
               {isActive && (
-                <span className="absolute -bottom-0.5 w-8 h-1 bg-gradient-to-r from-sky-400 to-cyan-500 dark:bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(14,165,233,0.6)]" />
+                <span className="text-xs tracking-wide whitespace-nowrap animate-fade-in font-sans">
+                  {item.label}
+                </span>
+              )}
+
+              {/* Notification Badge on active tab */}
+              {isActive && item.badge !== undefined && item.badge > 0 && (
+                <span className="bg-white/25 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full ml-1">
+                  {item.badge}
+                </span>
               )}
             </button>
           );
         })}
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 };
