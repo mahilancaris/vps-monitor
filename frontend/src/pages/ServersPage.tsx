@@ -72,11 +72,13 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-            <Server className="w-5 h-5 text-cyan-500 dark:text-cyan-400" />
+          <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:bg-cyan-500/15 dark:text-cyan-400 shadow-xs">
+              <Server className="w-5 h-5" />
+            </div>
             Server Fleet Registry
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Manage your Ubuntu home servers and Singapore/edge VPS nodes
           </p>
         </div>
@@ -92,7 +94,7 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
                 setPrivateIp('');
                 setIsAddModalOpen(true);
               }}
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition shadow-xs shadow-cyan-500/20 active:scale-95"
+              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-sky-500 via-cyan-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-bold transition shadow-md shadow-sky-500/25 hover:shadow-sky-500/40 active:scale-95"
             >
               <Plus className="w-4 h-4" />
               <span>Enroll New Server</span>
@@ -109,10 +111,10 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-mono transition ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all duration-200 ${
                 isSelected
-                  ? 'bg-slate-900 dark:bg-slate-800 text-white dark:text-cyan-400 border border-slate-900 dark:border-cyan-800/60 font-bold shadow-xs'
-                  : 'bg-white dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800 shadow-xs'
+                  ? 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold shadow-md shadow-sky-500/25 scale-[1.03]'
+                  : 'glass-panel-subtle text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/80'
               }`}
             >
               {st}

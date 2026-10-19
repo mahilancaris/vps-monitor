@@ -23,22 +23,25 @@ export const ServerCard: React.FC<ServerCardProps> = ({ server, onClick }) => {
 
   const statusColor = isOnline
     ? {
-        border: 'border-slate-200/80 hover:border-emerald-400 dark:border-emerald-500/30 dark:hover:border-emerald-500/60',
-        badge: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800',
-        dot: 'bg-emerald-500 shadow-emerald-500/50',
+        border: 'border-white/80 dark:border-emerald-500/30',
+        badge: 'bg-emerald-500/10 text-emerald-700 border-emerald-300/60 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 shadow-xs shadow-emerald-500/10',
+        dot: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]',
+        glow: 'from-emerald-400/10 to-transparent',
         label: 'Online'
       }
     : isDelayed
     ? {
-        border: 'border-slate-200/80 hover:border-amber-400 dark:border-amber-500/30 dark:hover:border-amber-500/60',
-        badge: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800',
-        dot: 'bg-amber-500 shadow-amber-500/50',
+        border: 'border-white/80 dark:border-amber-500/30',
+        badge: 'bg-amber-500/10 text-amber-700 border-amber-300/60 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800 shadow-xs shadow-amber-500/10',
+        dot: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]',
+        glow: 'from-amber-400/10 to-transparent',
         label: 'Delayed'
       }
     : {
-        border: 'border-slate-200/80 hover:border-rose-400 dark:border-rose-500/30 dark:hover:border-rose-500/60',
-        badge: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800',
-        dot: 'bg-rose-500 shadow-rose-500/50',
+        border: 'border-white/80 dark:border-rose-500/30',
+        badge: 'bg-rose-500/10 text-rose-700 border-rose-300/60 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800 shadow-xs shadow-rose-500/10',
+        dot: 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]',
+        glow: 'from-rose-400/10 to-transparent',
         label: 'Offline'
       };
 
@@ -86,45 +89,48 @@ export const ServerCard: React.FC<ServerCardProps> = ({ server, onClick }) => {
   return (
     <div
       onClick={() => onClick(server)}
-      className={`bg-white dark:bg-slate-900/60 backdrop-blur-md rounded-2xl border ${statusColor.border} p-4 sm:p-5 transition-all duration-200 cursor-pointer shadow-xs hover:shadow-lg active:scale-[0.99] group`}
+      className="glass-panel glass-interactive rounded-2xl p-4 sm:p-5 cursor-pointer relative overflow-hidden group"
     >
+      {/* Ambient Status Glow Orb */}
+      <div className={`absolute -top-12 -right-12 w-32 h-32 bg-gradient-to-br ${statusColor.glow} rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500`} />
+
       {/* Top Header */}
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-2 relative z-10">
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2">
-            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 group-hover:text-sky-600 dark:group-hover:text-cyan-400 transition-colors truncate">
+            <h3 className="font-extrabold text-base text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-cyan-400 transition-colors truncate">
               {server.name}
             </h3>
-            <span className="flex items-center text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
+            <span className="flex items-center text-[11px] px-2.5 py-0.5 rounded-full bg-slate-200/50 dark:bg-slate-800/60 border border-white/60 dark:border-white/5 text-slate-700 dark:text-slate-300 font-medium backdrop-blur-xs">
               <MapPin className="w-3 h-3 mr-1 text-sky-500 dark:text-cyan-400 shrink-0" />
               {server.location}
             </span>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-1 truncate">
             {server.hostname || server.public_ip || 'No IP registered'}
           </p>
         </div>
 
         {/* Status Pill */}
-        <div className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusColor.badge}`}>
+        <div className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-bold border backdrop-blur-md ${statusColor.badge}`}>
           <span className={`w-2 h-2 rounded-full ${statusColor.dot} ${isOnline ? 'animate-pulse' : ''}`} />
           <span>{statusColor.label}</span>
-          <ChevronRight className="w-3.5 h-3.5 ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight className="w-3.5 h-3.5 ml-0.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
 
       {/* Metric Mini Bars */}
-      <div className="mt-4 grid grid-cols-3 gap-2.5">
+      <div className="mt-4 grid grid-cols-3 gap-2 relative z-10">
         {/* CPU */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5 border border-slate-200/60 dark:border-slate-700/40">
+        <div className="glass-panel-subtle rounded-xl p-2.5">
           <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-            <span className="flex items-center"><Cpu className="w-3 h-3 mr-1 text-sky-500 dark:text-cyan-400" /> CPU</span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200">{cpuPercent.toFixed(1)}%</span>
+            <span className="flex items-center font-medium"><Cpu className="w-3 h-3 mr-1 text-sky-600 dark:text-cyan-400" /> CPU</span>
+            <span className="font-bold text-slate-900 dark:text-white">{cpuPercent.toFixed(1)}%</span>
           </div>
-          <div className="w-full bg-slate-200 dark:bg-slate-700/60 rounded-full h-1.5 mt-2 overflow-hidden">
+          <div className="w-full bg-slate-200/80 dark:bg-slate-700/60 rounded-full h-1.5 mt-2 overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-300 ${
-                cpuPercent > 85 ? 'bg-rose-500' : cpuPercent > 65 ? 'bg-amber-400' : 'bg-sky-500 dark:bg-cyan-500'
+              className={`h-full rounded-full transition-all duration-500 ${
+                cpuPercent > 85 ? 'bg-gradient-to-r from-rose-500 to-red-600' : cpuPercent > 65 ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-gradient-to-r from-sky-400 to-cyan-500'
               }`}
               style={{ width: `${Math.min(100, cpuPercent)}%` }}
             />
@@ -132,15 +138,15 @@ export const ServerCard: React.FC<ServerCardProps> = ({ server, onClick }) => {
         </div>
 
         {/* RAM */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5 border border-slate-200/60 dark:border-slate-700/40">
+        <div className="glass-panel-subtle rounded-xl p-2.5">
           <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-            <span className="flex items-center"><Activity className="w-3 h-3 mr-1 text-purple-500 dark:text-purple-400" /> RAM</span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200">{ramPercent.toFixed(1)}%</span>
+            <span className="flex items-center font-medium"><Activity className="w-3 h-3 mr-1 text-purple-600 dark:text-purple-400" /> RAM</span>
+            <span className="font-bold text-slate-900 dark:text-white">{ramPercent.toFixed(1)}%</span>
           </div>
-          <div className="w-full bg-slate-200 dark:bg-slate-700/60 rounded-full h-1.5 mt-2 overflow-hidden">
+          <div className="w-full bg-slate-200/80 dark:bg-slate-700/60 rounded-full h-1.5 mt-2 overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-300 ${
-                ramPercent > 90 ? 'bg-rose-500' : ramPercent > 75 ? 'bg-amber-400' : 'bg-purple-500'
+              className={`h-full rounded-full transition-all duration-500 ${
+                ramPercent > 90 ? 'bg-gradient-to-r from-rose-500 to-red-600' : ramPercent > 75 ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-gradient-to-r from-purple-400 to-indigo-500'
               }`}
               style={{ width: `${Math.min(100, ramPercent)}%` }}
             />
@@ -148,15 +154,15 @@ export const ServerCard: React.FC<ServerCardProps> = ({ server, onClick }) => {
         </div>
 
         {/* Disk */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5 border border-slate-200/60 dark:border-slate-700/40">
+        <div className="glass-panel-subtle rounded-xl p-2.5">
           <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-            <span className="flex items-center"><HardDrive className="w-3 h-3 mr-1 text-emerald-500 dark:text-emerald-400" /> Disk</span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200">{diskPercent.toFixed(1)}%</span>
+            <span className="flex items-center font-medium"><HardDrive className="w-3 h-3 mr-1 text-emerald-600 dark:text-emerald-400" /> Disk</span>
+            <span className="font-bold text-slate-900 dark:text-white">{diskPercent.toFixed(1)}%</span>
           </div>
-          <div className="w-full bg-slate-200 dark:bg-slate-700/60 rounded-full h-1.5 mt-2 overflow-hidden">
+          <div className="w-full bg-slate-200/80 dark:bg-slate-700/60 rounded-full h-1.5 mt-2 overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-300 ${
-                diskPercent > 90 ? 'bg-rose-500' : diskPercent > 75 ? 'bg-amber-400' : 'bg-emerald-500'
+              className={`h-full rounded-full transition-all duration-500 ${
+                diskPercent > 90 ? 'bg-gradient-to-r from-rose-500 to-red-600' : diskPercent > 75 ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-gradient-to-r from-emerald-400 to-teal-500'
               }`}
               style={{ width: `${Math.min(100, diskPercent)}%` }}
             />
@@ -165,14 +171,14 @@ export const ServerCard: React.FC<ServerCardProps> = ({ server, onClick }) => {
       </div>
 
       {/* Bottom Info: Throughput, Uptime, Last Heartbeat */}
-      <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+      <div className="mt-3.5 pt-3 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono relative z-10">
         <div className="flex items-center space-x-3">
-          <span className="flex items-center text-slate-700 dark:text-slate-300">
-            <ArrowUpRight className="w-3 h-3 text-sky-500 dark:text-cyan-400 mr-0.5" />
+          <span className="flex items-center text-slate-800 dark:text-slate-300 font-medium">
+            <ArrowUpRight className="w-3 h-3 text-sky-600 dark:text-cyan-400 mr-0.5" />
             {formatBytesSec(totalTx)}
           </span>
-          <span className="flex items-center text-slate-700 dark:text-slate-300">
-            <ArrowDownLeft className="w-3 h-3 text-indigo-500 dark:text-indigo-400 mr-0.5" />
+          <span className="flex items-center text-slate-800 dark:text-slate-300 font-medium">
+            <ArrowDownLeft className="w-3 h-3 text-indigo-600 dark:text-indigo-400 mr-0.5" />
             {formatBytesSec(totalRx)}
           </span>
         </div>

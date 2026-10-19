@@ -42,51 +42,69 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onSelectServer, onNa
 
   return (
     <div className="space-y-6 pb-20 md:pb-8">
-      {/* Global Status Banner */}
+      {/* Global Status Banner Hero */}
       <div
-        className={`rounded-2xl p-4 sm:p-5 border transition-all shadow-xs ${
+        className={`glass-panel rounded-3xl p-5 sm:p-6 relative overflow-hidden transition-all duration-300 ${
           isAllOnline
-            ? 'bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent dark:from-emerald-950/40 dark:to-slate-900 border-emerald-500/30 dark:border-emerald-800/40 text-emerald-900 dark:text-emerald-200'
+            ? 'border-emerald-300/60 dark:border-emerald-500/30'
             : hasOffline
-            ? 'bg-gradient-to-r from-rose-500/10 via-rose-500/5 to-transparent dark:from-rose-950/40 dark:to-slate-900 border-rose-500/30 dark:border-rose-800/40 text-rose-900 dark:text-rose-200'
+            ? 'border-rose-300/60 dark:border-rose-500/30'
             : hasDelayed
-            ? 'bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/40 dark:to-slate-900 border-amber-500/30 dark:border-amber-800/40 text-amber-900 dark:text-amber-200'
-            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300'
+            ? 'border-amber-300/60 dark:border-amber-500/30'
+            : 'border-white/80 dark:border-white/10'
         }`}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3.5">
+        {/* Ambient Hero Glow Aura */}
+        <div
+          className={`absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl pointer-events-none opacity-60 dark:opacity-40 transition-all duration-700 ${
+            isAllOnline
+              ? 'bg-gradient-to-br from-emerald-400 to-teal-500'
+              : hasOffline
+              ? 'bg-gradient-to-br from-rose-500 to-red-600'
+              : hasDelayed
+              ? 'bg-gradient-to-br from-amber-400 to-orange-500'
+              : 'bg-gradient-to-br from-sky-400 to-cyan-500'
+          }`}
+        />
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center space-x-4">
             <div
-              className={`p-2.5 rounded-xl ${
+              className={`p-3 rounded-2xl shadow-md transition-all duration-300 ${
                 isAllOnline
-                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shadow-emerald-500/20'
                   : hasOffline
-                  ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 animate-pulse'
+                  ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 shadow-rose-500/20 animate-pulse'
                   : hasDelayed
-                  ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                  ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 shadow-amber-500/20'
+                  : 'bg-slate-200/60 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
               }`}
             >
               {isAllOnline ? (
-                <CheckCircle2 className="w-6 h-6" />
+                <CheckCircle2 className="w-7 h-7" />
               ) : hasOffline ? (
-                <XCircle className="w-6 h-6" />
+                <XCircle className="w-7 h-7" />
               ) : (
-                <AlertTriangle className="w-6 h-6" />
+                <AlertTriangle className="w-7 h-7" />
               )}
             </div>
             <div>
-              <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-                {isAllOnline
-                  ? 'All Fleet Servers Operational'
-                  : hasOffline
-                  ? `${summary?.offline_servers} Server${summary?.offline_servers! > 1 ? 's' : ''} Offline!`
-                  : hasDelayed
-                  ? `${summary?.delayed_servers} Overdue Heartbeat${summary?.delayed_servers! > 1 ? 's' : ''}`
-                  : 'VPS Fleet Monitor'}
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Monitoring {summary?.total_servers || 0} nodes across Home and Edge regions
+              <div className="flex items-center space-x-2">
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                  {isAllOnline
+                    ? 'All Fleet Servers Operational'
+                    : hasOffline
+                    ? `${summary?.offline_servers} Server${summary?.offline_servers! > 1 ? 's' : ''} Offline!`
+                    : hasDelayed
+                    ? `${summary?.delayed_servers} Overdue Heartbeat${summary?.delayed_servers! > 1 ? 's' : ''}`
+                    : 'VPS Fleet Monitor'}
+                </h2>
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-300/40">
+                  Real-Time
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Monitoring {summary?.total_servers || 0} nodes across Singapore VPS &amp; Home Ubuntu clusters
               </p>
             </div>
           </div>
@@ -94,7 +112,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onSelectServer, onNa
           {summary?.active_alerts ? (
             <button
               onClick={() => onNavigate('alerts')}
-              className="px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-semibold transition"
+              className="px-4 py-2 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/50 text-rose-700 dark:text-rose-300 text-xs font-bold transition shadow-xs self-start sm:self-auto"
             >
               {summary.active_alerts} Active Alert{summary.active_alerts > 1 ? 's' : ''}
             </button>
@@ -136,52 +154,60 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onSelectServer, onNa
       </div>
 
       {/* Resource Utilization Aggregates */}
-      <div className="bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs backdrop-blur-md">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-          Overall Fleet Resource Footprint
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="glass-panel rounded-3xl p-5 sm:p-6 relative overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 right-1/3 w-72 h-72 bg-sky-400/10 dark:bg-sky-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex items-center justify-between mb-4 relative z-10">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
+            Overall Fleet Resource Footprint
+          </h3>
+          <span className="text-[11px] text-slate-400 font-mono">Aggregated Telemetry</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
           {/* Fleet CPU */}
-          <div className="bg-slate-50/80 dark:bg-slate-800/40 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/40">
-            <div className="flex items-center justify-between text-xs font-mono text-slate-600 dark:text-slate-300 mb-2">
-              <span className="flex items-center font-medium"><Cpu className="w-3.5 h-3.5 mr-1.5 text-cyan-600 dark:text-cyan-400" /> Average CPU</span>
-              <span className="font-bold text-slate-900 dark:text-slate-100">{summary?.overall_cpu_avg || 0}%</span>
+          <div className="glass-panel-subtle p-4 rounded-2xl">
+            <div className="flex items-center justify-between text-xs font-mono text-slate-600 dark:text-slate-300 mb-2.5">
+              <span className="flex items-center font-medium"><Cpu className="w-4 h-4 mr-2 text-sky-600 dark:text-cyan-400" /> Average CPU</span>
+              <span className="font-extrabold text-base text-slate-900 dark:text-white">{summary?.overall_cpu_avg || 0}%</span>
             </div>
             <div className="w-full bg-slate-200/80 dark:bg-slate-700/60 rounded-full h-2 overflow-hidden">
               <div
-                className="h-full bg-cyan-500 rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-sky-400 to-cyan-500 rounded-full transition-all duration-700"
                 style={{ width: `${summary?.overall_cpu_avg || 0}%` }}
               />
             </div>
           </div>
 
           {/* Fleet RAM */}
-          <div className="bg-slate-50/80 dark:bg-slate-800/40 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/40">
-            <div className="flex items-center justify-between text-xs font-mono text-slate-600 dark:text-slate-300 mb-2">
-              <span className="flex items-center font-medium"><Layers className="w-3.5 h-3.5 mr-1.5 text-purple-600 dark:text-purple-400" /> RAM Used</span>
-              <span className="font-bold text-slate-900 dark:text-slate-100">
+          <div className="glass-panel-subtle p-4 rounded-2xl">
+            <div className="flex items-center justify-between text-xs font-mono text-slate-600 dark:text-slate-300 mb-2.5">
+              <span className="flex items-center font-medium"><Layers className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" /> RAM Used</span>
+              <span className="font-extrabold text-base text-slate-900 dark:text-white">
                 {((summary?.overall_ram_used_mb || 0) / 1024).toFixed(1)} / {((summary?.overall_ram_total_mb || 0) / 1024).toFixed(1)} GB
               </span>
             </div>
             <div className="w-full bg-slate-200/80 dark:bg-slate-700/60 rounded-full h-2 overflow-hidden">
               <div
-                className="h-full bg-purple-500 rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-purple-400 to-indigo-500 rounded-full transition-all duration-700"
                 style={{ width: `${summary?.overall_ram_percent || 0}%` }}
               />
             </div>
           </div>
 
           {/* Fleet Storage */}
-          <div className="bg-slate-50/80 dark:bg-slate-800/40 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/40">
-            <div className="flex items-center justify-between text-xs font-mono text-slate-600 dark:text-slate-300 mb-2">
-              <span className="flex items-center font-medium"><HardDrive className="w-3.5 h-3.5 mr-1.5 text-emerald-600 dark:text-emerald-400" /> Storage Used</span>
-              <span className="font-bold text-slate-900 dark:text-slate-100">
+          <div className="glass-panel-subtle p-4 rounded-2xl">
+            <div className="flex items-center justify-between text-xs font-mono text-slate-600 dark:text-slate-300 mb-2.5">
+              <span className="flex items-center font-medium"><HardDrive className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" /> Storage Used</span>
+              <span className="font-extrabold text-base text-slate-900 dark:text-white">
                 {summary?.overall_disk_used_gb || 0} / {summary?.overall_disk_total_gb || 0} GB
               </span>
             </div>
             <div className="w-full bg-slate-200/80 dark:bg-slate-700/60 rounded-full h-2 overflow-hidden">
               <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-700"
                 style={{ width: `${summary?.overall_disk_percent || 0}%` }}
               />
             </div>
@@ -191,28 +217,28 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onSelectServer, onNa
 
       {/* Search & Location Filter Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        {/* Search */}
+        {/* Glass Search Input */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search servers by name, IP, hostname..."
-            className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 font-mono shadow-xs"
+            className="w-full glass-panel-subtle rounded-2xl pl-11 pr-4 py-2.5 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all"
           />
         </div>
 
-        {/* Location Filters */}
-        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        {/* Glass Location Filters */}
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {availableLocations.map((loc) => (
             <button
               key={loc}
               onClick={() => setLocationFilter(loc)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-colors ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                 locationFilter === loc
-                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-xs shadow-cyan-500/20'
-                  : 'bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-xs'
+                  ? 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold shadow-md shadow-sky-500/25 scale-[1.03]'
+                  : 'glass-panel-subtle text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/80'
               }`}
             >
               {loc}
@@ -223,8 +249,9 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onSelectServer, onNa
 
       {/* Servers List Grid */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider font-mono">
+        <div className="flex items-center justify-between mb-3.5">
+          <h3 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider font-mono flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
             Monitored Nodes ({filteredServers.length})
           </h3>
           {summary?.last_updated && (
@@ -236,8 +263,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ onSelectServer, onNa
         </div>
 
         {filteredServers.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center text-slate-500 dark:text-slate-400 shadow-xs">
-            <p className="text-sm">No servers match your current search or filters.</p>
+          <div className="glass-panel rounded-3xl p-10 text-center text-slate-500 dark:text-slate-400">
+            <p className="text-sm font-medium">No servers match your current search or filters.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

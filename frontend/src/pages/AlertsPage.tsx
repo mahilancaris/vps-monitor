@@ -90,22 +90,24 @@ export const AlertsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-            <Bell className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+          <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:bg-cyan-500/15 dark:text-cyan-400 shadow-xs">
+              <Bell className="w-5 h-5" />
+            </div>
             Infrastructure Alerts
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Real-time threshold evaluations, delayed heartbeats, and offline alerts
           </p>
         </div>
 
         {/* Tab switch */}
-        <div className="flex bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 self-start sm:self-auto shadow-xs">
+        <div className="flex p-1 rounded-2xl glass-panel-subtle self-start sm:self-auto">
           <button
             onClick={() => setActiveTab('active')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+            className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
               activeTab === 'active'
-                ? 'bg-white dark:bg-cyan-500 text-slate-950 font-bold shadow-xs'
+                ? 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold shadow-md shadow-sky-500/25 scale-[1.02]'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -113,9 +115,9 @@ export const AlertsPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('resolved')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+            className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
               activeTab === 'resolved'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-200 font-bold shadow-xs'
+                ? 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold shadow-md shadow-sky-500/25 scale-[1.02]'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -127,27 +129,27 @@ export const AlertsPage: React.FC = () => {
       {/* Alerts Feed */}
       <div className="space-y-3">
         {displayedAlerts.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-10 text-center shadow-xs">
+          <div className="glass-panel rounded-3xl p-10 text-center">
             <CheckCircle className="w-10 h-10 text-emerald-500 dark:text-emerald-400 mx-auto mb-2 opacity-80" />
-            <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">No {activeTab} alerts</h4>
+            <h4 className="text-sm font-bold text-slate-900 dark:text-white">No {activeTab} alerts</h4>
             <p className="text-xs text-slate-500 mt-1">All monitored Ubuntu servers are within normal limits.</p>
           </div>
         ) : (
           displayedAlerts.map((alert) => (
             <div
               key={alert.id}
-              className="bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              className="glass-panel glass-interactive rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
               <div className="flex items-start space-x-3.5">
-                <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 shrink-0 mt-0.5">
+                <div className="p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 shrink-0 mt-0.5 shadow-xs">
                   {severityIcon(alert.severity)}
                 </div>
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`text-[10px] uppercase font-bold font-mono px-2 py-0.5 rounded-md border ${severityBadge(alert.severity)}`}>
+                    <span className={`text-[10px] uppercase font-bold font-mono px-2 py-0.5 rounded-full border ${severityBadge(alert.severity)}`}>
                       {alert.severity}
                     </span>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">{alert.title}</h4>
+                    <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">{alert.title}</h4>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed font-mono">
                     {alert.message}
@@ -158,7 +160,7 @@ export const AlertsPage: React.FC = () => {
                       Triggered {new Date(alert.triggered_at).toLocaleString()}
                     </span>
                     {alert.server_name && (
-                      <span className="text-cyan-600 dark:text-cyan-400 font-semibold">{alert.server_name}</span>
+                      <span className="text-sky-600 dark:text-cyan-400 font-bold">{alert.server_name}</span>
                     )}
                   </div>
                 </div>
@@ -169,13 +171,13 @@ export const AlertsPage: React.FC = () => {
                 <div className="flex items-center space-x-2 self-end sm:self-center shrink-0">
                   <button
                     onClick={() => acknowledgeAlert(alert.id, false)}
-                    className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-mono transition"
+                    className="px-3.5 py-1.5 rounded-xl glass-panel-subtle text-slate-700 dark:text-slate-300 text-xs font-mono transition hover:bg-white"
                   >
                     Acknowledge
                   </button>
                   <button
                     onClick={() => acknowledgeAlert(alert.id, true)}
-                    className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-mono transition"
+                    className="px-3.5 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-300/60 text-emerald-800 dark:text-emerald-300 text-xs font-mono font-bold transition shadow-xs"
                   >
                     Resolve
                   </button>
@@ -188,10 +190,10 @@ export const AlertsPage: React.FC = () => {
 
       {/* Notification Dispatcher Setup (Admin) */}
       {user?.role === 'admin' && (
-        <div className="bg-white dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-xs backdrop-blur-md space-y-4">
+        <div className="glass-panel rounded-3xl p-6 space-y-4 relative overflow-hidden">
           <div className="flex items-center space-x-2">
-            <Send className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-            <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider font-mono">
+            <Send className="w-5 h-5 text-sky-600 dark:text-cyan-400" />
+            <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider font-mono">
               Telegram Instant Notification Channel
             </h3>
           </div>
@@ -199,7 +201,7 @@ export const AlertsPage: React.FC = () => {
             Receive push notifications on your phone via Telegram when a server misses heartbeats or exceeds CPU/RAM thresholds.
           </p>
 
-          <form onSubmit={handleSaveTelegram} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <form onSubmit={handleSaveTelegram} className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label className="block text-xs font-mono text-slate-600 dark:text-slate-400 mb-1">Telegram Bot Token</label>
               <input
@@ -207,7 +209,7 @@ export const AlertsPage: React.FC = () => {
                 value={telegramToken}
                 onChange={(e) => setTelegramToken(e.target.value)}
                 placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950 font-mono"
+                className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all"
               />
             </div>
             <div>
@@ -217,7 +219,7 @@ export const AlertsPage: React.FC = () => {
                 value={telegramChatId}
                 onChange={(e) => setTelegramChatId(e.target.value)}
                 placeholder="-100123456789 or user ID"
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950 font-mono"
+                className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all"
               />
             </div>
             <div className="sm:col-span-2 flex items-center justify-between pt-2">
@@ -227,7 +229,7 @@ export const AlertsPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSavingTelegram}
-                className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition shadow-xs shadow-cyan-500/20"
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white text-xs font-bold transition shadow-md shadow-sky-500/25 active:scale-95"
               >
                 {isSavingTelegram ? 'Saving...' : 'Save Telegram Channel'}
               </button>

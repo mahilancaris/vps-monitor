@@ -107,42 +107,44 @@ export const SettingsPage: React.FC = () => {
     <div className="space-y-6 pb-20 md:pb-8">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-          <Settings className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+        <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:bg-cyan-500/15 dark:text-cyan-400 shadow-xs">
+            <Settings className="w-5 h-5" />
+          </div>
           Settings &amp; Security
         </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
           User authentication, TOTP two-factor security, and Android PWA deployment
         </p>
       </div>
 
       {/* Profile & 2FA Card */}
-      <div className="bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs backdrop-blur-md space-y-4">
+      <div className="glass-panel rounded-3xl p-5 sm:p-6 space-y-5 relative overflow-hidden">
         <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider font-mono flex items-center gap-2">
-          <User className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+          <User className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
           User Profile
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
-          <div className="bg-slate-50/80 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800">
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase">Username</span>
-            <span className="text-slate-900 dark:text-slate-200 font-bold">{user?.username}</span>
+          <div className="glass-panel-subtle p-3.5 rounded-2xl">
+            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase font-bold">Username</span>
+            <span className="text-slate-900 dark:text-slate-200 font-extrabold text-sm">{user?.username}</span>
           </div>
-          <div className="bg-slate-50/80 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800">
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase">Email</span>
-            <span className="text-slate-900 dark:text-slate-200">{user?.email}</span>
+          <div className="glass-panel-subtle p-3.5 rounded-2xl">
+            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase font-bold">Email</span>
+            <span className="text-slate-900 dark:text-slate-200 font-medium">{user?.email}</span>
           </div>
-          <div className="bg-slate-50/80 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800">
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase">Role</span>
-            <span className="text-cyan-600 dark:text-cyan-400 font-bold uppercase">{user?.role}</span>
+          <div className="glass-panel-subtle p-3.5 rounded-2xl">
+            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase font-bold">Role</span>
+            <span className="text-sky-600 dark:text-cyan-400 font-extrabold uppercase">{user?.role}</span>
           </div>
         </div>
 
         {/* 2FA Toggle Section */}
-        <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="pt-4 border-t border-slate-200/60 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center space-x-2">
-              <Shield className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+              <Shield className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
               <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase font-mono">
                 Two-Factor Authentication (TOTP)
               </h4>
@@ -154,12 +156,12 @@ export const SettingsPage: React.FC = () => {
 
           {user?.totp_enabled ? (
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-mono text-emerald-800 dark:text-emerald-400 flex items-center bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-lg">
-                <Check className="w-3.5 h-3.5 mr-1" /> Enabled
+              <span className="text-xs font-mono text-emerald-800 dark:text-emerald-400 flex items-center bg-emerald-500/10 border border-emerald-300/60 dark:border-emerald-800 px-3 py-1.5 rounded-xl font-bold shadow-xs">
+                <Check className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Enabled
               </span>
               <button
                 onClick={handleDisable2FA}
-                className="px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-mono hover:bg-rose-100 dark:hover:bg-rose-900/60 transition"
+                className="px-3.5 py-1.5 rounded-xl bg-rose-500/10 border border-rose-300/60 text-rose-700 dark:text-rose-300 text-xs font-mono hover:bg-rose-500/20 transition"
               >
                 Disable
               </button>
@@ -167,7 +169,7 @@ export const SettingsPage: React.FC = () => {
           ) : (
             <button
               onClick={start2FASetup}
-              className="px-3.5 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold font-mono transition shadow-xs shadow-cyan-500/20"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white text-xs font-bold font-mono transition shadow-md shadow-sky-500/25 active:scale-95"
             >
               Enable 2FA
             </button>
@@ -176,20 +178,20 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {/* Appearance & Theme Card */}
-      <div className="bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs backdrop-blur-md flex items-center justify-between">
+      <div className="glass-panel rounded-3xl p-5 sm:p-6 flex items-center justify-between relative overflow-hidden">
         <div>
           <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider font-mono flex items-center gap-2">
             {theme === 'dark' ? <Moon className="w-4 h-4 text-cyan-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
             Theme &amp; Appearance
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Currently active: <span className="font-mono text-cyan-600 dark:text-cyan-400 font-bold uppercase">{theme} mode</span>
+            Currently active: <span className="font-mono text-sky-600 dark:text-cyan-400 font-bold uppercase">{theme} mode</span>
           </p>
         </div>
 
         <button
           onClick={toggleTheme}
-          className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-mono text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs transition"
+          className="flex items-center space-x-2 px-4 py-2.5 rounded-xl glass-panel-subtle hover:bg-white text-xs font-mono text-slate-800 dark:text-slate-200 transition shadow-xs active:scale-95"
         >
           {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
           <span>Switch to {theme === 'dark' ? 'Light' : 'Dark'} Mode</span>
@@ -197,19 +199,19 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {/* Change Password Card */}
-      <div className="bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs backdrop-blur-md space-y-4">
+      <div className="glass-panel rounded-3xl p-5 sm:p-6 space-y-4 relative overflow-hidden">
         <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider font-mono flex items-center gap-2">
-          <KeyRound className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+          <KeyRound className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
           Update Password (Argon2id)
         </h3>
 
         {pwMessage && (
-          <div className={`p-3 rounded-xl text-xs font-mono ${pwMessage.error ? 'bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300' : 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'}`}>
+          <div className={`p-3 rounded-2xl text-xs font-mono ${pwMessage.error ? 'bg-rose-500/10 border border-rose-300/60 text-rose-700 dark:text-rose-300' : 'bg-emerald-500/10 border border-emerald-300/60 text-emerald-800 dark:text-emerald-300'}`}>
             {pwMessage.text}
           </div>
         )}
 
-        <form onSubmit={handlePasswordChange} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <form onSubmit={handlePasswordChange} className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <div>
             <label className="block text-xs font-mono text-slate-600 dark:text-slate-400 mb-1">Current Password</label>
             <input
@@ -217,7 +219,7 @@ export const SettingsPage: React.FC = () => {
               required
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950 font-mono"
+              className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all"
             />
           </div>
           <div>
@@ -228,7 +230,7 @@ export const SettingsPage: React.FC = () => {
               minLength={8}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950 font-mono"
+              className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all"
             />
           </div>
           <div>
@@ -239,7 +241,7 @@ export const SettingsPage: React.FC = () => {
               minLength={8}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950 font-mono"
+              className="w-full glass-panel-subtle rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 font-mono transition-all"
             />
           </div>
 
@@ -247,7 +249,7 @@ export const SettingsPage: React.FC = () => {
             <button
               type="submit"
               disabled={isChangingPw}
-              className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-mono font-semibold transition"
+              className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-mono font-bold transition shadow-xs active:scale-95"
             >
               {isChangingPw ? 'Updating...' : 'Save New Password'}
             </button>
@@ -256,7 +258,7 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {/* Android PWA & Network Connectivity Architecture Guide */}
-      <div className="bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs backdrop-blur-md space-y-4">
+      <div className="glass-panel rounded-3xl p-5 sm:p-6 space-y-4 relative overflow-hidden">
         <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider font-mono flex items-center gap-2">
           <Smartphone className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
           Android Installation &amp; Network Architecture
