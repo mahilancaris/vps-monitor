@@ -34,7 +34,7 @@ class TOTPVerifyRequest(BaseModel):
 
 class UserBase(BaseModel):
     username: str
-    email: EmailStr
+    email: str
     role: str = "readonly"
     is_active: bool = True
 
@@ -42,7 +42,7 @@ class UserCreate(UserBase):
     password: str = Field(..., min_length=8)
 
 class UserUpdate(BaseModel):
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None
     role: Optional[str] = None
     is_active: Optional[bool] = None
 
