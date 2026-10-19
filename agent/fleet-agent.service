@@ -1,0 +1,33 @@
+[Unit]
+Description=VPS Fleet Monitor Lightweight Linux Agent
+Documentation=https://github.com/vps-fleet-monitor
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=fleet-agent
+Group=fleet-agent
+ExecStart=/opt/fleet-agent/venv/bin/python3 /opt/fleet-agent/fleet_agent.py /etc/fleet-agent/config.json
+Restart=always
+RestartSec=10
+
+# Security Hardening & Least Privilege
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+ReadWritePaths=/etc/fleet-agent
+
+# Permissions to inspect listening sockets safely
+AmbientCapabilities=CAP_NET_ADMIN CAP_SYS_PTRACE
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_SYS_PTRACE
+
+# Resource Constraints
+MemoryMax=64M
+CPUQuota=10%
+
+[Install]
+WantedBy=multi-user.target

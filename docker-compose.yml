@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fleet_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fleet_monitor}
+      POSTGRES_USER: ${POSTGRES_USER:-fleet_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeThisDatabasePassword2026!}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fleet_user} -d ${POSTGRES_DB:-fleet_monitor}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fleet_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fleet_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-fleet_user}:${POSTGRES_PASSWORD:-ChangeThisDatabasePassword2026!}@db:5432/${POSTGRES_DB:-fleet_monitor}
+      SECRET_KEY: ${SECRET_KEY:-default-insecure-key-must-be-changed-in-production-min-32-chars}
+      ENVIRONMENT: production
+      DEBUG: "false"
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost,http://localhost:5173,http://localhost:8080}
+      FIRST_ADMIN_USERNAME: ${FIRST_ADMIN_USERNAME:-admin}
+      FIRST_ADMIN_EMAIL: ${FIRST_ADMIN_EMAIL:-admin@fleet.local}
+      FIRST_ADMIN_PASSWORD: ${FIRST_ADMIN_PASSWORD:-ChangeMe_FleetAdmin2026!}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+    command: >
+      sh -c "alembic upgrade head &&
+             python scripts/seed_demo_data.py &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    networks:
+      - fleet_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fleet_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    networks:
+      - fleet_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  fleet_network:
+    driver: bridge

@@ -1,0 +1,7 @@
+{
+  "api_url": "https://monitor.yourdomain.com/api",
+  "agent_token": "PASTE_UNIQUE_SERVER_TOKEN_HERE",
+  "heartbeat_interval": 15,
+  "metrics_interval": 15,
+  "verify_ssl": true
+}
