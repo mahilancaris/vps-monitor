@@ -72,11 +72,11 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            <Server className="w-5 h-5 text-cyan-400" />
+          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <Server className="w-5 h-5 text-cyan-500 dark:text-cyan-400" />
             Server Fleet Registry
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Manage your Ubuntu home servers and Singapore/edge VPS nodes
           </p>
         </div>
@@ -92,7 +92,7 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
                 setPrivateIp('');
                 setIsAddModalOpen(true);
               }}
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition shadow-lg shadow-cyan-500/20 active:scale-95"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition shadow-xs shadow-cyan-500/20 active:scale-95"
             >
               <Plus className="w-4 h-4" />
               <span>Enroll New Server</span>
@@ -103,19 +103,22 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
 
       {/* Status Filter Bar */}
       <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
-        {['All', 'Online', 'Delayed', 'Offline'].map((st) => (
-          <button
-            key={st}
-            onClick={() => setStatusFilter(st)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-mono transition ${
-              statusFilter.toLowerCase() === st.toLowerCase()
-                ? 'bg-slate-800 text-cyan-400 border border-cyan-800/60 font-bold'
-                : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 border border-slate-800'
-            }`}
-          >
-            {st}
-          </button>
-        ))}
+        {['All', 'Online', 'Delayed', 'Offline'].map((st) => {
+          const isSelected = statusFilter.toLowerCase() === st.toLowerCase();
+          return (
+            <button
+              key={st}
+              onClick={() => setStatusFilter(st)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-mono transition ${
+                isSelected
+                  ? 'bg-slate-900 dark:bg-slate-800 text-white dark:text-cyan-400 border border-slate-900 dark:border-cyan-800/60 font-bold shadow-xs'
+                  : 'bg-white dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800 shadow-xs'
+              }`}
+            >
+              {st}
+            </button>
+          );
+        })}
       </div>
 
       {/* Grid */}
@@ -140,24 +143,24 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
       >
         {generatedCred ? (
           <div className="space-y-4">
-            <div className="p-3 bg-emerald-950/40 border border-emerald-800/60 rounded-xl text-emerald-300 text-xs">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs">
               Server registered. Run the following command on your Ubuntu server to install the agent:
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-400 mb-1">Agent Secret Token</label>
-              <div className="p-2.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-amber-300 break-all select-all">
+              <label className="block text-xs font-mono text-slate-600 dark:text-slate-400 mb-1">Agent Secret Token</label>
+              <div className="p-2.5 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 font-mono text-xs text-amber-700 dark:text-amber-300 break-all select-all">
                 {generatedCred.raw_token}
               </div>
-              <p className="text-[11px] text-rose-400 mt-1">
+              <p className="text-[11px] text-rose-600 dark:text-rose-400 mt-1">
                 Save this token! It is stored securely as a cryptographic SHA-256 hash and cannot be viewed again.
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-400 mb-1">One-Line Agent Install Command</label>
+              <label className="block text-xs font-mono text-slate-600 dark:text-slate-400 mb-1">One-Line Agent Install Command</label>
               <div className="relative">
-                <pre className="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 overflow-x-auto">
+                <pre className="p-3 bg-slate-900 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-200 overflow-x-auto">
                   {`curl -sSL "${window.location.origin}/api/agent/install.sh" | sudo AGENT_TOKEN="${generatedCred.raw_token}" API_URL="${window.location.origin}/api" bash`}
                 </pre>
                 <button
@@ -178,7 +181,7 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
                 setIsAddModalOpen(false);
                 setGeneratedCred(null);
               }}
-              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition"
+              className="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-semibold text-xs transition"
             >
               Done
             </button>
@@ -186,65 +189,65 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
         ) : (
           <form onSubmit={handleCreateServer} className="space-y-4">
             {errorMessage && (
-              <div className="p-3 bg-rose-950/40 border border-rose-800/60 rounded-xl text-rose-300 text-xs">
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl text-rose-700 dark:text-rose-300 text-xs">
                 {errorMessage}
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Friendly Server Name *</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Friendly Server Name *</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Singapore VPS Edge or Home Ubuntu"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Location *</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Location *</label>
               <input
                 type="text"
                 required
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g. Home, Singapore, Tokyo, Frankfurt"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Hostname (Optional)</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Hostname (Optional)</label>
               <input
                 type="text"
                 value={hostname}
                 onChange={(e) => setHostname(e.target.value)}
                 placeholder="e.g. sg-vps-01"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Public IP</label>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Public IP</label>
                 <input
                   type="text"
                   value={publicIp}
                   onChange={(e) => setPublicIp(e.target.value)}
                   placeholder="e.g. 139.180.201.88"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Private IP / VPN</label>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Private IP / VPN</label>
                 <input
                   type="text"
                   value={privateIp}
                   onChange={(e) => setPrivateIp(e.target.value)}
                   placeholder="e.g. 10.0.0.5"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-950"
                 />
               </div>
             </div>
@@ -253,7 +256,7 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition shadow-lg shadow-cyan-500/20 disabled:opacity-50"
+                className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition shadow-xs shadow-cyan-500/20 disabled:opacity-50"
               >
                 {isSubmitting ? 'Registering...' : 'Register Server & Generate Agent Token'}
               </button>

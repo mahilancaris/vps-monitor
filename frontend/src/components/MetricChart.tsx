@@ -54,31 +54,31 @@ export const MetricChart: React.FC<MetricChartProps> = ({
   const areaD = `${pathD} L ${points[points.length - 1].x} ${paddingTop + chartHeight} L ${points[0].x} ${paddingTop + chartHeight} Z`;
 
   const colorConfig = {
-    cyan: { stroke: '#06b6d4', fill: 'url(#gradient-cyan)', text: 'text-cyan-400' },
-    purple: { stroke: '#a855f7', fill: 'url(#gradient-purple)', text: 'text-purple-400' },
-    emerald: { stroke: '#10b981', fill: 'url(#gradient-emerald)', text: 'text-emerald-400' },
-    amber: { stroke: '#f59e0b', fill: 'url(#gradient-amber)', text: 'text-amber-400' },
+    cyan: { stroke: '#0284c7', fill: 'url(#gradient-cyan)', text: 'text-sky-600 dark:text-cyan-400' },
+    purple: { stroke: '#9333ea', fill: 'url(#gradient-purple)', text: 'text-purple-600 dark:text-purple-400' },
+    emerald: { stroke: '#059669', fill: 'url(#gradient-emerald)', text: 'text-emerald-600 dark:text-emerald-400' },
+    amber: { stroke: '#d97706', fill: 'url(#gradient-amber)', text: 'text-amber-600 dark:text-amber-400' },
   }[color];
 
   const latestVal = values[values.length - 1];
   const activePoint = hoverIndex !== null ? points[hoverIndex] : points[points.length - 1];
 
   return (
-    <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl p-4">
+    <div className="bg-white dark:bg-slate-900/60 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">{title}</span>
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{title}</span>
           <div className="flex items-baseline space-x-2 mt-0.5">
             <span className={`text-xl font-bold font-mono ${colorConfig.text}`}>
               {activePoint ? activePoint.value.toFixed(1) : latestVal.toFixed(1)}
-              <span className="text-xs font-normal text-slate-400 ml-1">{unit}</span>
+              <span className="text-xs font-normal text-slate-500 dark:text-slate-400 ml-1">{unit}</span>
             </span>
-            <span className="text-[11px] text-slate-500 font-mono">
+            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
               {activePoint && new Date(activePoint.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
         </div>
-        <div className="text-right text-[11px] text-slate-500 font-mono">
+        <div className="text-right text-[11px] text-slate-400 dark:text-slate-500 font-mono">
           <div>Max: {maxVal.toFixed(0)}{unit}</div>
           <div>Min: {minVal.toFixed(0)}{unit}</div>
         </div>
