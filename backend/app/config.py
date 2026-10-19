@@ -16,8 +16,10 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     # Argon2id limits & rate limiting
-    LOGIN_RATE_LIMIT_PER_MINUTE: int = 5
+    LOGIN_RATE_LIMIT_PER_MINUTE: int = 10
     API_RATE_LIMIT_PER_MINUTE: int = 120
+    ACCOUNT_LOCKOUT_ATTEMPTS: int = 10
+    ACCOUNT_LOCKOUT_MINUTES: int = 5
 
     # Default Initial Admin
     FIRST_ADMIN_USERNAME: str = "admin"

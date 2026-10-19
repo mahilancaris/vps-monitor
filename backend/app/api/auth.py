@@ -35,7 +35,7 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
     if rate_limiter.is_account_locked(req.username):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Account temporarily locked due to 5 consecutive failed login attempts. Please wait 15 minutes."
+            detail=f"Account temporarily locked due to {settings.ACCOUNT_LOCKOUT_ATTEMPTS} consecutive failed login attempts. Please wait {settings.ACCOUNT_LOCKOUT_MINUTES} minutes."
         )
 
     stmt = select(User).where(User.username == req.username)

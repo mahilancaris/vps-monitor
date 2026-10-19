@@ -26,8 +26,8 @@ class InMemoryRateLimiter:
 
     def record_failed_login(self, username: str) -> int:
         now = time.time()
-        # Keep last 15 minutes of failures
-        window_start = now - 900
+        window_seconds = settings.ACCOUNT_LOCKOUT_MINUTES * 60
+        window_start = now - window_seconds
         self.failed_logins[username] = [t for t in self.failed_logins[username] if t > window_start]
         self.failed_logins[username].append(now)
         return len(self.failed_logins[username])
@@ -36,11 +36,15 @@ class InMemoryRateLimiter:
         if username in self.failed_logins:
             del self.failed_logins[username]
 
+    def clear_all(self):
+        self.requests.clear()
+        self.failed_logins.clear()
+
     def is_account_locked(self, username: str) -> bool:
         now = time.time()
-        window_start = now - 900 # 15 min lockout
-        recent_failures = [t for t in self.failed_logins.get(username, []) if t > window_start]
-        return len(recent_failures) >= 5
+        window_seconds = settings.ACCOUNT_LOCKOUT_MINUTES * 60
+        recent_failures = [t for t in self.failed_logins.get(username, []) if t > (now - window_seconds)]
+        return len(recent_failures) >= settings.ACCOUNT_LOCKOUT_ATTEMPTS
 
 rate_limiter = InMemoryRateLimiter()
 
