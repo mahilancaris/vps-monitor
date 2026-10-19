@@ -1,5 +1,7 @@
+import os
 from datetime import datetime
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, status, HTTPException
+from fastapi.responses import PlainTextResponse, FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -14,6 +16,33 @@ from app.services.evaluator import check_metric_thresholds
 from app.services.ws_manager import ws_manager
 
 router = APIRouter(prefix="/agent", tags=["Agent Ingestion"])
+
+# Resolve agent scripts path
+AGENT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "agent"))
+
+@router.get("/install.sh", response_class=PlainTextResponse)
+async def get_install_script():
+    path = os.path.join(AGENT_DIR, "install-agent.sh")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="install-agent.sh not found")
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+@router.get("/fleet_agent.py", response_class=PlainTextResponse)
+async def get_agent_python_script():
+    path = os.path.join(AGENT_DIR, "fleet_agent.py")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="fleet_agent.py not found")
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+@router.get("/fleet-agent.service", response_class=PlainTextResponse)
+async def get_agent_service_unit():
+    path = os.path.join(AGENT_DIR, "fleet-agent.service")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="fleet-agent.service not found")
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
 
 @router.post("/heartbeat", status_code=status.HTTP_200_OK)
 async def ingest_heartbeat(

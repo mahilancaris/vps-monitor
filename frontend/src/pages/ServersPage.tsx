@@ -61,7 +61,7 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
   };
 
   const copyInstallCommand = (token: string) => {
-    const installCmd = `curl -sSL https://raw.githubusercontent.com/vps-fleet-monitor/agent/main/install-agent.sh | sudo AGENT_TOKEN="${token}" API_URL="${window.location.origin}/api" bash`;
+    const installCmd = `curl -sSL "${window.location.origin}/api/agent/install.sh" | sudo AGENT_TOKEN="${token}" API_URL="${window.location.origin}/api" bash`;
     navigator.clipboard.writeText(installCmd);
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
@@ -158,7 +158,7 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
               <label className="block text-xs font-mono text-slate-400 mb-1">One-Line Agent Install Command</label>
               <div className="relative">
                 <pre className="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 overflow-x-auto">
-                  {`curl -sSL https://raw.githubusercontent.com/vps-fleet-monitor/agent/main/install-agent.sh | sudo AGENT_TOKEN="${generatedCred.raw_token}" API_URL="${window.location.origin}/api" bash`}
+                  {`curl -sSL "${window.location.origin}/api/agent/install.sh" | sudo AGENT_TOKEN="${generatedCred.raw_token}" API_URL="${window.location.origin}/api" bash`}
                 </pre>
                 <button
                   onClick={() => copyInstallCommand(generatedCred.raw_token)}
@@ -168,6 +168,9 @@ export const ServersPage: React.FC<ServersPageProps> = ({ onSelectServer }) => {
                   {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                 </button>
               </div>
+              <p className="text-[11px] text-slate-500 font-mono mt-1">
+                Note: If installing on a remote server/VPS, replace <code>{window.location.origin}</code> with your central monitoring host IP or domain.
+              </p>
             </div>
 
             <button

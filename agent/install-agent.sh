@@ -77,9 +77,14 @@ CONFIG_DIR="/etc/fleet-agent"
 mkdir -p "$INSTALL_DIR"
 mkdir -p "$CONFIG_DIR"
 
-# 8. Copy Agent script
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cp "$SCRIPT_DIR/fleet_agent.py" "$INSTALL_DIR/fleet_agent.py"
+# 8. Copy or Download Agent script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "")"
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/fleet_agent.py" ]; then
+    cp "$SCRIPT_DIR/fleet_agent.py" "$INSTALL_DIR/fleet_agent.py"
+else
+    echo -e "[*] Downloading fleet_agent.py from $API_URL/agent/fleet_agent.py..."
+    curl -fsSL "$API_URL/agent/fleet_agent.py" -o "$INSTALL_DIR/fleet_agent.py"
+fi
 chmod 755 "$INSTALL_DIR/fleet_agent.py"
 
 # 9. Setup Python Virtual Environment
@@ -107,7 +112,12 @@ chown -R fleet-agent:fleet-agent "$INSTALL_DIR"
 
 # 11. Install systemd service
 echo -e "[*] Installing systemd unit..."
-cp "$SCRIPT_DIR/fleet-agent.service" /etc/systemd/system/fleet-agent.service
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/fleet-agent.service" ]; then
+    cp "$SCRIPT_DIR/fleet-agent.service" /etc/systemd/system/fleet-agent.service
+else
+    echo -e "[*] Downloading fleet-agent.service from $API_URL/agent/fleet-agent.service..."
+    curl -fsSL "$API_URL/agent/fleet-agent.service" -o /etc/systemd/system/fleet-agent.service
+fi
 systemctl daemon-reload
 systemctl enable fleet-agent.service
 systemctl restart fleet-agent.service
